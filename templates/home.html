@@ -9,23 +9,34 @@
         <button id="click-button">点击</button>
         <p id="message"></p>
     </center>
-    
+
+    <center>
+        <button id="Sign in"><a href="login">点击跳转</a></button>
+    </center>
+
     <script>
+        // 从服务器获取点击后展示文本
+        // // 创建监听
+        // document.getElementById("click-button").addEventListener('click',function() {
+        //     // 发送get请求
+        //     fetch("/get_message").then(response => {
+        //         if (response.ok) {
+        //             return response.json();
+        //         }
+        //         else {
+        //             throw new Error("Error");
+        //         }
+        //     }).then(data => {
+        //         document.getElementById("message").textContent = data
+        //     }).catch(miss => {
+        //         console.error("Error", error);
+        //     });
+        // });
+
+        // 固定的展示文本
         // 创建监听
         document.getElementById("click-button").addEventListener('click',function() {
-            // 发送get请求
-            fetch("/get_message").then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                else {
-                    throw new Error("Error");
-                }
-            }).then(data => {
-                document.getElementById("message").textContent = data
-            }).catch(miss => {
-                console.error("Error", error);
-            });
+            document.getElementById("message").textContent = "a static text"
         });
     </script>
 </body>

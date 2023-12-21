@@ -1,21 +1,21 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Flask App</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <button id="click-button">点击</button>
-    <p id="message"></p>
-
-    <script>
-    $(document).ready(function(){
-        $("#click-button").click(function(){
-            $.get("/get_message", function(data){
-                $("#message").html(data.message);
-            });
-        });
-    });
-    </script>
+    <p id="message">This is login in page.</p>
+    <center>
+        <form action="/login" method="get">  
+            <label for="username">用户名:</label>  
+            <input type="text" id="username" name="username">  
+            <br>  
+            <label for="password">密码:</label>  
+            <input type="password" id="password" name="password">  
+            <br>  
+            <input type="submit" value="登录">  
+        </form>
+    </center>
+    
 </body>
-</html> -->
+</html>

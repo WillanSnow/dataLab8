@@ -69,58 +69,14 @@
 
 # HTML & Python
 
-当然，以下是使用Flask的一些基本步骤：
+使用FLask作为前后端交互的方法，falsk库创建一个简单的Web服务器，可以加载多个html页面。当html向服务器发送get请求时，flask可以返回python函数的结果。因此，我们的实现方法为：
+- 运行flask创建服务器；
+- 服务器运行不同的html页面；
+- html页面用于用户操作，当需要访问数据库时，向服务器发送get请求，服务器将结果返回。
 
-1. **安装Flask**：你可以使用pip来安装Flask。在命令行中输入以下命令：
+## 需求的html
 
-```bash
-pip install flask
-```
-
-2. **创建一个Flask应用**：首先，你需要导入Flask模块并创建一个应用实例。Flask使用Python的模块和包来组织代码。
-
-```python
-from flask import Flask
-app = Flask(__name__)
-```
-
-3. **定义路由和视图函数**：Flask使用路由来决定当用户访问一个特定的URL时，应该运行哪个Python函数（也被称为视图函数）。
-
-```python
-@app.route('/')
-def home():
-    return "Hello, World!"
-```
-
-在这个例子中，我们定义了一个视图函数`home`，它返回字符串"Hello, World!"。我们使用`app.route`装饰器来告诉Flask，当用户访问根URL（'/'）时，应该调用这个函数。
-
-4. **运行应用**：最后，我们需要告诉Flask开始运行我们的应用。
-
-```python
-if __name__ == '__main__':
-    app.run(debug=True)
-```
-
-5. **在HTML中使用Python函数的结果**：你可以使用`render_template`函数来渲染一个HTML模板，并将Python函数的结果传递给模板。例如，假设你有一个名为`index.html`的模板，你可以这样做：
-
-```python
-from flask import render_template
-
-@app.route('/')
-def home():
-    message = "Hello, World!"
-    return render_template('index.html', message=message)
-```
-
-然后，在`index.html`模板中，你可以使用`{{ message }}`来显示这个消息。
-
-```html
-<!doctype html>
-<html>
-    <body>
-        <h1>{{ message }}</h1>
-    </body>
-</html>
-```
-
-这只是Flask的基础使用方法。Flask还有许多其他的功能，比如处理表单数据、文件上传、用户认证等等。你可以查阅[Flask的官方文档](http://flask.pocoo.org/docs/)来了解更多信息。希望这个信息能帮助你！如果你有任何其他问题，欢迎随时向我提问。😊
+- 首页：因为我们功能很少，所以直接做一个登录页：账号、密码登录即可。
+- 登录后：
+  - 客户：查看是否有待完成的交易、发起交易
+  - 经理：查看客户信息（不能看密码）、修改客户密码（需要客户预留验证方式的验证，我们不可能真做验证码确认，可以直接改）、查看流水（当日、本月）
