@@ -1,2 +1,2 @@
 def test():
-    return "nihao"
+    return "nima"
