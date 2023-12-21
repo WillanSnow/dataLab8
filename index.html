@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run Python Script</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <button id="run-script">运行脚本</button>
+    <div id="result"></div>
+
+    <script>
+    $(document).ready(function(){
+        $("#run-script").click(function(){
+            $.post("/run_script", function(data){
+                $("#result").html(data);
+            });
+        });
+    });
+    </script>
+</body>
+</html>
