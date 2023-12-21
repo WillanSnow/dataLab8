@@ -1,21 +1,22 @@
 from flask import Flask, render_template, jsonify
-from test import test
-from flask import request
+# from test import test
+import pymysql
+from support import test
 
-app = Flask(__name__)
+Ewallet = Flask(__name__)
 
-@app.route('/')
+@Ewallet.route('/')
 def home():
     return render_template("home.html")
 
-@app.route('/get_message', methods=['GET'])
+@Ewallet.route('/get_message', methods=['GET'])
 def get_message():
     message = test()
     return jsonify(message)
 
-@app.route('/login')
+@Ewallet.route('/login')
 def login():
     return render_template("login.html")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    Ewallet.run(debug=True)
