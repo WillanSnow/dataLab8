@@ -1,2 +1,3 @@
 def test():
-    return "nima"
+    # return "nima"
+    return 123

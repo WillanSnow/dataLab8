@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-wallet</title>
+</head>
+
+<body>
+    <center>
+        <button id="click-button">点击</button>
+        <p id="message"></p>
+    </center>
+    
+    <script>
+        // 创建监听
+        document.getElementById("click-button").addEventListener('click',function() {
+            // 发送get请求
+            fetch("/get_message").then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                else {
+                    throw new Error("Error");
+                }
+            }).then(data => {
+                document.getElementById("message").textContent = data
+            }).catch(miss => {
+                console.error("Error", error);
+            });
+        });
+    </script>
+</body>
+</html>
