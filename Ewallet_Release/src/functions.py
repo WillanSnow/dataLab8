@@ -27,8 +27,9 @@ import random
 import mysql.connector
 from datetime import datetime, timedelta
 
-# 
-def login(account, password, conn):
+# -----------------数据库函数----------------------
+
+def login(account, password):
     """
     登录函数：给定account、password，返回登录结果（-1：登录失败，账号不存在；0：登录失败，密码错误；1：登录成功）
 
@@ -40,6 +41,12 @@ def login(account, password, conn):
     返回：
     - 登录结果：-1：登录失败，账号不存在；0：登录失败，密码错误；1：登录成功
     """
+    conn = mysql.connector.connect(
+        host='localhost',  # 数据库主机地址
+        user='root',  # 数据库用户名
+        passwd='Cp20031212',  # 数据库密码
+        database='lab8'  # 数据库名
+    )
     cursor = conn.cursor()
 
     cursor.execute("SELECT password FROM account WHERE account_id =%s", (account,))
@@ -282,3 +289,39 @@ def generate_id():
     - 随机生成的5位数
     """
     return random.randint(0, 100000)
+
+
+def get_account_info(account):
+    conn = mysql.connector.connect(
+        host='localhost',       # 数据库主机地址
+        user='root',            # 数据库用户名
+        passwd='Cp20031212',    # 数据库密码
+        database='lab8'         # 数据库名
+    )
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT phone_num FROM account WHERE account_id =%s", (account,))
+    
+    return cursor.fetchone()
+
+def change_psd(account, psd):
+    "修改指定账户的密码"
+    conn = mysql.connector.connect(
+        host='localhost',       # 数据库主机地址
+        user='root',            # 数据库用户名
+        passwd='Cp20031212',    # 数据库密码
+        database='lab8'         # 数据库名
+    )
+    cursor = conn.cursor()
+    cursor.execute("UPDATE ")
+
+# ---------------服务器的一些函数----------------------
+
+def legal_phone(phone):
+    "判断电话号码是否合法"
+    if len(phone) != 11 or not phone.isdigit():
+        print(phone.isdigit())
+        return False
+    else:
+        return True
+

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-from src.support import *
+from src.functions import *
 
 Ewallet = Flask(__name__)
 
@@ -27,6 +27,7 @@ def manager():
 # 登录post请求
 @Ewallet.route('/login', methods = ['POST'])
 def try_to_login():
+    ret = ""
     name = request.form.get('username')
     psd = request.form.get("password")
     # 用户名为空
@@ -51,17 +52,28 @@ def sendMessage():
 @Ewallet.route('/xiugaimima', methods = ["POST"])
 def xiugaimima():
     # post了新密码、手机号、验证码，需要返回true/false
-    phone = request.get_json("ponum_")
-    code = request.get_json("code_")
-    psd = request.get_json("pass_")
+    phone = request.form.get("ponum_")
+    code = request.form.get("code_")
+    psd = request.form.get("pass_")
+    account = request.form.get("account_")
+    ret = ""
     
     if not legal_phone(phone):
         ret = "手机号格式不正确，请检查"
-    elif not legal_code(code) or code != phone[11-4: ]:
+    elif code != phone[11-4: ]:
         ret = "验证码不正确，请重新输入"
     else:
-
-        ret = 1
+        account_info = get_account_info(account)
+        # 判断账户是否存在
+        if account_info is None:
+            ret = "账户不存在"
+        # 判断手机号是否匹配
+        elif phone != account_info:
+            ret = "手机号、账号不匹配"
+        # 修改密码
+        else:
+            change_psd(account, psd)
+            ret = "1"
     return jsonify(ret)
 
 @Ewallet.route('/denglu', methods = ["POST"])
@@ -69,6 +81,8 @@ def denglu():
     return jsonify("1")
 
 if __name__ == '__main__':
-    connectot = None
-    
+    connector = None
+    user_id = None
+    user_type = False
+
     Ewallet.run(debug=True)

@@ -316,20 +316,3 @@ def generate_id():
     - 随机生成的5位数
     """
     return random.randint(0, 100000)
-
-
-# ---------------服务器的一些函数----------------------
-
-def legal_phone(phone):
-    "判断电话号码是否合法"
-    if len(phone) != 11 or not phone.isdigit():
-        return False
-    else:
-        return True
-
-def legal_code(code):
-    "判断验证码是否合法"
-    if len(code) != 4 or not code.isdigit():
-        return False
-    else:
-        return True

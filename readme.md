@@ -175,6 +175,14 @@ database = 'lab8'
 登录要返回：Manage_id/Cust_id，flag（true=经理，false=客户），**数据库连接**。
 - 连接结构体在进入经理、客户页面后固定，之后的函数都使用这个连接访问数据库。
 
+## 连接权限
+
+主函数使用`root`用户连接，有所有权限。
+
+用户`cust`可以查看所有表，并对`changes, cutomer, trade`表有修改权限。
+
+用户`manager`可以查看所有表，并对`account, customer`表有修改权。
+
 # 项目结构
 
 更新文件夹`Ewallet_Realse`，安装Flask、pysql后，可以运行本网页应用。
