@@ -27,7 +27,6 @@ import random
 import mysql.connector
 from datetime import datetime, timedelta
 
-# 
 def login(account, password):
     """
     登录函数：给定account、password，返回登录结果（-1：登录失败，账号不存在；0：登录失败，密码错误；1：登录成功）

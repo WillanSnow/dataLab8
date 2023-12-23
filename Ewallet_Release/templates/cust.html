@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+    table, th, td { border: 1px solid black; border-collapse: collapse; }
+    td, th { padding: 10px; }
+    </style>
+    <script>
+        function jsonToTable(jsonData) {
+            // 创建一个新的table元素
+            let table = document.createElement('table');
+        
+            // 获取列名，假设所有行都有相同的属性
+            let cols = Object.keys(jsonData[0]);
+        
+            // 创建表头
+            let thead = document.createElement('thead');
+            let headerRow = document.createElement('tr');
+            cols.forEach(colName => {
+                let th = document.createElement('th');
+                th.textContent = colName;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+        
+            // 创建表体
+            let tbody = document.createElement('tbody');
+            jsonData.forEach(row => {
+                let tr = document.createElement('tr');
+                cols.forEach(colName => {
+                    let td = document.createElement('td');
+                    td.textContent = row[colName];
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+        
+            // 返回创建的table元素
+            return table;
+        }
+        function showTable() {
+            // 使用示例
+            let jsonData = [
+                { "姓名": "张三", "年龄": 30 },
+                { "姓名": "李四", "年龄": 25 }
+            ];
+            let tableElement = jsonToTable(jsonData);
+            document.body.appendChild(tableElement);
+        }
+    </script>
+</head>
+<body>
+    <h2>使用JavaScript将JSON数据转换为HTML表格</h2>
+    <div id="container"></div>
+    <button id="show_table", onclick="showTable()">show table</button>
+</body>
+</html>
