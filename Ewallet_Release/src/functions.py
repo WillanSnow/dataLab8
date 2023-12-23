@@ -27,23 +27,19 @@ import random
 import mysql.connector
 from datetime import datetime, timedelta
 
-def login(account, password):
+# 
+def login(account, password, conn):
     """
     登录函数：给定account、password，返回登录结果（-1：登录失败，账号不存在；0：登录失败，密码错误；1：登录成功）
 
     参数：
     - account：账号
     - password：密码
-    
+    - conn:数据库连接
+
     返回：
     - 登录结果：-1：登录失败，账号不存在；0：登录失败，密码错误；1：登录成功
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     cursor.execute("SELECT password FROM account WHERE account_id =%s", (account,))
@@ -57,22 +53,17 @@ def login(account, password):
         return 1  # 登录成功
 
 
-def get_pending_transactions(account):
+def get_pending_transactions(account, conn):
     """
     消息提醒函数：给定account，返回等待其确认的交易(即发给他且他未确认的交易)
 
     参数：
     - account：账号
+    - conn:数据库连接
 
     返回：
     - 等待确认的交易：(trade_id, amount, status, cust_a, cust_b)
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM trade WHERE cust_b=%s AND status=0", (account,))
@@ -81,7 +72,7 @@ def get_pending_transactions(account):
     return result
 
 
-def initiate_transaction(cust_a, cust_b, amount):
+def initiate_transaction(cust_a, cust_b, amount, conn):
     """
     交易发起函数：给定发起客户、目标客户、金额，若目标客户不存在，金额超过发起客户单笔额度，交易发起失败，返回失败信息；否则发起成功，创建交易(注意创建交易、change元组)。
     注意：存、取、交易都是通过这个函数实现的，存由‘系统’账户发起，客户接收；取由客户发起，‘系统’接收。
@@ -90,16 +81,11 @@ def initiate_transaction(cust_a, cust_b, amount):
     - cust_a：发起客户
     - cust_b：目标客户
     - amount：金额
+    - conn:数据库连接
 
     返回：
     - 交易发起结果：交易发起成功/失败信息
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     # 检查目标客户是否存在
@@ -133,7 +119,7 @@ def initiate_transaction(cust_a, cust_b, amount):
     return "交易发起成功"
 
 
-def modify_transaction(cust_id, trade_id, action):
+def modify_transaction(cust_id, trade_id, action, conn):
     """
     修改交易：给定客户、交易、操作(接收、撤销、拒绝)，修改数据库对应信息(注意同步余额、trade状态，增加change条目)
 
@@ -141,16 +127,11 @@ def modify_transaction(cust_id, trade_id, action):
     - cust_id：客户
     - trade_id：交易
     - action：操作(接收、撤销、拒绝)
+    - conn:数据库连接
 
     返回：
     - 交易修改结果：交易修改成功/失败信息
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     # 获取交易信息
@@ -212,22 +193,17 @@ def verify_phone_and_code(phone, code):
     
 
  
-def get_customer_transactions(cust_id):
+def get_customer_transactions(cust_id, conn):
     """
     客户交易查询函数：给定客户账号，返回有关客户的所有交易（所有状态）。
 
     参数：
     - cust_id：客户账号
+    - conn:数据库连接
 
     返回：
     - 交易：(trade_id, amount, status, cust_a, cust_b)
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     # 查询发起的交易
@@ -241,22 +217,17 @@ def get_customer_transactions(cust_id):
     return transactions_initiated, transactions_received
 
 
-def get_transactions(date):
+def get_transactions(date, conn):
     """
     流水查询函数：返回指定日期的流水
 
     参数：
     - date:日期
+    - conn:数据库连接
 
     返回：
     - 交易:(trade_id, amount, status, cust_a, cust_b)
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     # 计算给定日期的下一天
@@ -269,7 +240,7 @@ def get_transactions(date):
     return transactions
 
 
-def create_account(name, phone_num, password):
+def create_account(name, phone_num, password, conn):
     """
     开户函数：给定姓名、手机号、密码，创建一个客户（创建账户，余额为0，默认限额）
 
@@ -277,16 +248,11 @@ def create_account(name, phone_num, password):
     - name：姓名
     - phone_num：手机号
     - password：密码
+    - conn:数据库连接
 
     返回：
     - 账号ID：新创建的账号ID
     """
-    conn = mysql.connector.connect(
-        host='localhost',  # 数据库主机地址
-        user='your_username',  # 数据库用户名
-        passwd='your_password',  # 数据库密码
-        database='your_database'  # 数据库名
-    )
     cursor = conn.cursor()
 
     # 生成随机的账号ID和客户ID
@@ -316,20 +282,3 @@ def generate_id():
     - 随机生成的5位数
     """
     return random.randint(0, 100000)
-
-
-# ---------------服务器的一些函数----------------------
-
-def legal_phone(phone):
-    "判断电话号码是否合法"
-    if len(phone) != 11 or not phone.isdigit():
-        return False
-    else:
-        return True
-
-def legal_code(code):
-    "判断验证码是否合法"
-    if len(code) != 4 or not code.isdigit():
-        return False
-    else:
-        return True

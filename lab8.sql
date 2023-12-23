@@ -5,7 +5,7 @@
  Source Server Type    : MySQL
  Source Server Version : 80030
  Source Host           : localhost:3306
- Source Schema         : finallab
+ Source Schema         : lab8
 
  Target Server Type    : MySQL
  Target Server Version : 80030
@@ -41,15 +41,15 @@ CREATE TABLE `changes`  (
   PRIMARY KEY (`change_id`) USING BTREE,
   INDEX `CHANGE_CUST`(`cust_id` ASC) USING BTREE,
   INDEX `CHANGE_TRADE`(`trade_id` ASC) USING BTREE,
-  CONSTRAINT `CHANGE_CUST` FOREIGN KEY (`cust_id`) REFERENCES `custmoer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `CHANGE_CUST` FOREIGN KEY (`cust_id`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `CHANGE_TRADE` FOREIGN KEY (`trade_id`) REFERENCES `trade` (`trade_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Table structure for custmoer
+-- Table structure for customer
 -- ----------------------------
 DROP TABLE IF EXISTS `customer`;
-CREATE TABLE `custmoer`  (
+CREATE TABLE `customer`  (
   `cust_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `balance` float NOT NULL,
@@ -86,8 +86,8 @@ CREATE TABLE `trade`  (
   PRIMARY KEY (`trade_id`) USING BTREE,
   INDEX `BEGIN_CUST`(`cust_a` ASC) USING BTREE,
   INDEX `DST_CUST`(`cust_b` ASC) USING BTREE,
-  CONSTRAINT `BEGIN_CUST` FOREIGN KEY (`cust_a`) REFERENCES `custmoer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `DST_CUST` FOREIGN KEY (`cust_b`) REFERENCES `custmoer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `BEGIN_CUST` FOREIGN KEY (`cust_a`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `DST_CUST` FOREIGN KEY (`cust_b`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

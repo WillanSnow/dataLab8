@@ -1,0 +1,105 @@
+<html>
+<head>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            border: 1px solid black;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        input {
+            width: 200px;
+
+        }
+
+        button {
+            display: block;
+            width: 100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>修改密码</h1>
+    <form id="change-form" action="change_password.php" method="post">
+        <label>手机号码：<input type="text" name="phonenum" id="ponum" maxlength="11"></label>
+        <label>验证码：<input type="text" name="code" id="code"></label>
+        <label>新密码：<input type="password" name="new_password" id="new_password"></label>
+        <label>重复密码：<input type="password" name="repeat_password" id="repeat_password"></label>
+        <button type="submit" id="submit">提交</button>
+    </form>
+    <script>
+        // 获取表单元素
+        var form = document.getElementById("change-form");
+        var ponum = document.getElementById("ponum");
+        var code = document.getElementById("code");
+        var new_password = document.getElementById("new_password");
+        var repeat_password = document.getElementById("repeat_password");
+        var submit = document.getElementById("submit");
+
+        function post() {
+            let url = "/xiugaimima";
+            let data = {
+                pass_ : new_password,//密码
+                ponum_ : ponum,//手机号
+                code_ : code//验证码
+            };
+            // 创建请求选项
+            let options = {
+                method: 'POST', // 设置请求方法为POST
+                headers: {
+                    'Content-Type': 'application/json' // 设置内容类型为JSON
+                },
+                body: JSON.stringify(data) // 将JavaScript对象或值转换为JSON字符串
+            };
+            // 发送请求
+            fetch(url, options)
+            .then(response => response.json()) // 解析响应为JSON
+            .then(data => { 
+                if(data == "1")
+                {
+                    alert("修改成功！请返回重新登录");
+                    location.href = "/";
+                }
+                else
+                {
+                    alert(JSON.stringify(data));
+                }
+            })
+            .catch(error => console.error('Error:', error)); // 捕获并打印任何错误
+        }
+
+        // 给提交按钮添加点击事件
+        submit.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            // 验证输入的验证码，新密码，重复新密码是否为空
+            if (ponum.value == "" || code.value == "" || new_password.value == "" || repeat_password.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            // 验证输入的新密码和重复新密码是否一致
+            if (new_password.value != repeat_password.value) {
+                alert("新密码和重复新密码不一致");
+                return;
+            }
+            // 传入新密码
+            post();
+        });
+
+
+    </script>
+</body>
+</html>

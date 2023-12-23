@@ -154,6 +154,27 @@
 
 开户函数：给定姓名、手机号、密码，创建一个客户（创建账户，余额为0，默认限额10000s）
 
+## 数据库登录逻辑
+
+在首页，即登录页面上，数据库没有用户登录。
+
+登录成功后，如果是经理，数据库用以下信息登录：
+```python
+host = 'localhost'
+user = 'managers'
+passwd = '12345678'
+database = 'lab8'
+```
+如果是客户，用以下信息登录：
+```python
+host = 'localhost'
+user = 'customers'
+passwd = '87654321'
+database = 'lab8'
+```
+登录要返回：Manage_id/Cust_id，flag（true=经理，false=客户），**数据库连接**。
+- 连接结构体在进入经理、客户页面后固定，之后的函数都使用这个连接访问数据库。
+
 # 项目结构
 
 更新文件夹`Ewallet_Realse`，安装Flask、pysql后，可以运行本网页应用。
