@@ -1,0 +1,227 @@
+<!-- account.html -->
+<html>
+<head>
+    <title>Account</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+        table {
+            margin: auto;
+            border-collapse: collapse;
+        }
+        form {
+            display: none;
+        }
+        td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+        input {
+            width: 100px;
+        }
+    </style>
+
+</head>
+
+<body onload="init()">
+    <h1>欢迎，<span id="kehuname"></span>！您的卡号是：<span id="kehuid"></span></h1>
+    <p>您的余额是：<span id="balance"></span>元</p>
+    <p>您的交易限额为：<span id="limit"></span>元</p>
+
+    <p><button id="st1">您的交易记录</button></p>
+    
+    <button id="dt" onclick="change.bind(this)()">存钱</button>
+    <button id="wt" onclick="change.bind(this)()">取钱</button>
+    <button id="tt" onclick="change.bind(this)()">转账</button>
+
+    <form id="deposit-form">
+        <p>金额(元)：<input id="deposit-amount" type="number" min="0" step="1"></p>
+        <p>密码：<input id="deposit-password" type="password"></p>
+        <p><button id="dt1">确定</button> 
+    </form>
+    <form id="withdraw-form">
+        <p>金额(元)：<input id="withdraw-amount" type="number" min="0" step="1"></p>
+        <p>密码：<input id="withdraw-password" type="password"></p>
+        <p><button id="wt1">确定</button> 
+    </form>
+    <form id="transfer-form">
+        <p>转入账户卡号：<input id="transfer-target"></p>
+        <p>金额(元)：<input id="transfer-amount" type="number" min="0" step="1"></p>
+        <p>密码：<input id="transfer-password" type="password"></p>
+        <p><button id="tt1" >确定</button> 
+    </form>
+    <script>
+        // 获取URL中的账号
+        var params = window.location.search;
+        var searchParams = new URLSearchParams(params);
+        var kehuid = searchParams.get("kehuid");
+
+        // 获取网页中的元素
+        var nameElement = document.getElementById("kehuname");
+        var idElement = document.getElementById("kehuid");
+        var balanceElement = document.getElementById("balance");
+        var limitElement = document.getElementById("limit");
+
+        // 表单
+        var df = document.getElementById("deposit-form");
+        var wf = document.getElementById("withdraw-form");
+        var tf = document.getElementById("transfer-form");
+
+        var dt2 = document.getElementById("dt1");
+        var wt2 = document.getElementById("wt1");
+        var tt2 = document.getElementById("tt1");
+        var st2 = document.getElementById("st1");
+
+        // 
+        var dd1 = document.getElementById("deposit-amount");
+        var dd2 = document.getElementById("deposit-password");
+
+        var wd1 = document.getElementById("withdraw-amount");
+        var wd2 = document.getElementById("withdraw-password");
+
+        var td1 = document.getElementById("transfer-amount");
+        var td2 = document.getElementById("transfer-password");
+        var td3 = document.getElementById("transfer-target");
+
+        // 这个函数会在网页加载时执行，用来显示客户的信息和提醒
+        function init() {
+            // 设置元素的内容
+            post("/kehuid_post", {kehuid_: kehuid});
+            idElement.innerHTML = kehuid;
+            df.style.display = "none";
+            wf.style.display = "none";
+            tf.style.display = "none";
+        }
+
+        // 使用账号get信息
+        function post(url,data) {
+            // 创建请求选项
+            let options = {
+                method: 'POST', // 设置请求方法为POST
+                headers: {
+                    'Content-Type': 'application/json' // 设置内容类型为JSON
+                },
+                body: JSON.stringify(data) // 将JavaScript对象或值转换为JSON字符串
+            };
+            // 发送请求
+            fetch(url, options)
+            .then(response => response.json()) // 解析响应为JSON
+            .then(data => {
+                console.log(JSON.stringify(data))
+                if(url == "/kehuid_post")
+                {
+                    console.log(JSON.stringify(data))
+                    nameElement.innerHTML = data.dota[0];
+                    balanceElement.innerHTML = data.dota[2];
+                    limitElement.innerHTML = data.dota[3];
+                }
+                else if(url == "/cunqian")
+                {
+                    alert(data.info);
+                    if(data.flag) df.reset();
+                }
+                else if(url == "/quqian")
+                {
+                    alert(data.info);
+                    if(data.flag) wf.reset();
+                }
+                else if(url == "/zhuan")
+                {
+                    alert(data.info);
+                    if(data.flag) tf.reset();
+                }
+                else if(url == "/kehusearch")
+                {
+                    alert(data.info)
+                    console.log(JSON.stringify(data))
+                }
+            })
+            .catch(error => console.error('Error:', error)); // 捕获并打印任何错误
+        }
+
+        // 给确定按钮添加点击事件
+        st2.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var sdata={
+                kehuuser : kehuid
+            }
+            // 验证输入的账号和密码是否为空
+            post("/kehusearch",sdata);
+        });
+        dt2.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var cdata={
+                kehuuser : kehuid,
+                amount : dd1.value,
+                pass : dd2.value
+            }
+            // 验证输入的账号和密码是否为空
+            if (dd1.value == "" || dd2.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            post("/cunqian",cdata);
+        });
+        wt2.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var qdata={
+                kehuuser : kehuid,
+                amount : wd1.value,
+                pass : wd2.value
+            }
+            // 验证输入的账号和密码是否为空
+            if (wd1.value == "" || wd2.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            post("/quqian",qdata);
+        });
+        tt2.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var zdata={
+                targetuser : td3.value,
+                amount : td1.value,
+                pass : td2.value,
+                kehuuser : kehuid
+            }
+            // 验证输入的账号和密码是否为空
+            if (td1.value == "" || td2.value == "" || td3.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            post("/zhuan",zdata);
+        });
+        
+        // 点击事件，显示或隐藏表单
+        function change(){
+            var form1,form2,form3;
+            if(this.id =="dt"){
+                form1 = df;
+                form2 = wf;
+                form3 = tf;
+            } else if(this.id =="wt"){
+                form1 = wf;
+                form2 = df;
+                form3 = tf;
+            } else if(this.id =="tt"){
+                form1 = tf;
+                form2 = df;
+                form3 = wf; 
+            }
+            if (form1.style.display == "none") {
+                form1.style.display = "block";
+                form2.style.display = "none";
+                form3.style.display = "none";
+            } else {
+                form1.style.display = "none";
+            }
+        };
+    </script>
+
+</body>
+</html>

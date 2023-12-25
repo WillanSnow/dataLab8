@@ -91,3 +91,35 @@ CREATE TABLE `trade`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- 创建客户用户
+CREATE ROLE 'cust';
+-- 分配权限
+-- 可查看所有表
+GRANT SELECT ON lab8.* TO 'cust';
+-- 对changes、trade可增、改
+GRANT INSERT, UPDATE ON lab8.changes TO 'cust';
+GRANT INSERT, UPDATE ON lab8.trade TO 'cust';
+-- 对customer可改
+GRANT UPDATE ON lab8.customer TO 'cust';
+-- 创建用户
+CREATE USER 'cust'@'localhost' IDENTIFIED BY '87654321';
+-- 分配角色
+GRANT 'cust' TO 'cust'@'localhost';
+
+
+-- 创建经理
+CREATE ROLE 'manager';
+-- 分配权限
+-- 可看所有表
+GRANT SELECT ON lab8.* TO 'manager';
+-- 对customer、account可增、删
+GRANT INSERT, DELETE, UPDATE ON lab8.customer TO 'manager';
+GRANT INSERT, DELETE ON lab8.account TO 'manager';
+-- 创建用户
+CREATE USER 'manager'@'localhost' IDENTIFIED BY '12345678';
+-- 分配角色
+GRANT 'manager' TO 'manager'@'localhost';
+
+-- 激活用户
+SET GLOBAL activate_all_roles_on_login=ON;

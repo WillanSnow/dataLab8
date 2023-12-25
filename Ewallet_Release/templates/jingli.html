@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<!-- jingli.html -->
+<html>
+<head>
+    <title>Manager</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+        table {
+            margin: auto;
+            border-collapse: collapse;
+        }
+        form {
+            display: none;
+        }
+        td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+        input {
+            width: 100px;
+        }
+    </style>
+
+</head>
+
+<body onload="init()">
+    <h1>欢迎<span id="maname">经理先生</span>！您的ID：<span id="jlid"></span></h1>
+    <p>本日流水：<span id="liushui"></span>元</p>
+
+    <button id="sea" onclick="change.bind(this)()">查询</button>
+    <button id="op" onclick="change.bind(this)()">开户</button>
+    <button id="cl" onclick="change.bind(this)()">销户</button>
+    <button id="le" onclick="change.bind(this)()">升级</button>
+    <table id="stable"></table>
+    <form id="seaf">
+        <p>查询账户卡号：<input id="sead1" type="text"></p>
+        <p><button id="sea-but">提交</button> 
+    </form>
+    <form id="opf">
+        <p>手机号：<input id="opd4" type="text" ></p>
+        <p>姓名：<input id="opd5" type="text"></p>
+        <p>密码：<input id="opd2" type="password"></p>
+        <p>确认密码：<input id="opd3" type="password"></p>
+        <p><button id="op-but">提交</button> 
+    </form>
+    <form id="clf">
+        <p>客户账号：<input id="cld1" type="text"></p>
+        <p><button id="cl-but">提交</button>
+    </form>
+    <form id="lef">
+        <p>客户账号：<input id="led1" type="text"></p>
+        <p>修改额度：<input id="led2" type="number"></p>
+        <p><button id="le-but">提交</button>
+    </form>
+    <script>
+        // 获取URL参数
+        var params = window.location.search;
+        var searchParams = new URLSearchParams(params);
+        var jlid = searchParams.get("jlid");
+
+        // 获取网页中的元素
+        var nameElement = document.getElementById("maname");
+        var idElement = document.getElementById("jlid");
+        var liushuiElement = document.getElementById("liushui");
+        var stableElement = document.getElementById("stable");
+
+        // 表单
+        var opf_ = document.getElementById("opf");
+        var clf_ = document.getElementById("clf");
+        var lef_ = document.getElementById("lef");
+        var seaf_ = document.getElementById("seaf");
+
+        var op_but = document.getElementById("op-but");
+        var clt = document.getElementById("cl-but");
+        var lelt = document.getElementById("le-but");
+        var seat = document.getElementById("sea-but");
+
+        var sead1 = document.getElementById("sead1");
+
+        var opd2 = document.getElementById("opd2");
+        var opd3 = document.getElementById("opd3");
+        var opd4 = document.getElementById("opd4");
+        var opd5 = document.getElementById("opd5");
+
+        var cld1 = document.getElementById("cld1");
+
+        var led1 = document.getElementById("led1");
+        var led2 = document.getElementById("led2");
+
+        var jp_data={
+            jlid_ : jlid
+        }
+        // 这个函数会在网页加载时执行，用来显示客户的信息和提醒
+        function init() {
+            post("/jlid_post",jp_data);
+            // 设置元素的内容
+            idElement.innerHTML = jlid;
+
+            opf_.style.display = "none";
+            clf_.style.display = "none";
+            lef_.style.display = "none";
+            seaf_.style.display = "none";
+        }
+
+        function post(url,data) {
+            // 创建请求选项
+            let options = {
+                method: 'POST', // 设置请求方法为POST
+                headers: {
+                    'Content-Type': 'application/json' // 设置内容类型为JSON
+                },
+                body: JSON.stringify(data) // 将JavaScript对象或值转换为JSON字符串
+            };
+            // 发送请求
+            fetch(url, options)
+            .then(response => response.json()) // 解析响应为JSON
+            .then(data => { 
+                if(url == "/jlid_post")
+                {
+                    nameElement.innerHTML = data.name;
+                    liushuiElement.innerHTML = data.liushui;
+                }
+                else if(url == "/kaihu")
+                {
+                    alert(data.info);
+                    if (data.flag) opf_.reset();
+                }
+                else if(url == "/xiaohu")
+                {
+                    alert(data.info);
+                    console.log(JSON.stringify(data))
+                    if (data.flag) clf_.reset();
+                }
+                else if(url == "/shengji")
+                {
+                    alert(data.info);
+                    if (data.flag) lef_.reset()
+                }
+                else if(url == "/jlsearch")
+                {
+                    console.log(JSON.stringify(data))
+                    if(data.flag)
+                    {
+                        // 展示交易记录表格,还没想好怎么写
+                        atable(data.dota);
+                        seaf_.reset()
+                    }
+                    else
+                    {
+                        alert(data.info);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error)); // 捕获并打印任何错误
+        }
+        //
+        //
+        function atable(data){
+            // 表头
+            var thead = document.createElement("thead");
+            var tr1 = document.createElement("tr");
+            var th1 = document.createElement("th");
+            var th2 = document.createElement("th");
+            var th3 = document.createElement("th");
+            var th4 = document.createElement("th");
+            var th5 = document.createElement("th");
+            th1.innerHTML = "交易ID";
+            th2.innerHTML = "发起客户";
+            th3.innerHTML = "接收客户";
+            th4.innerHTML = "金额";
+            th5.innerHTML = "交易状态";
+            tr1.appendChild(th1);
+            tr1.appendChild(th2);
+            tr1.appendChild(th3);
+            tr1.appendChild(th4);
+            tr1.appendChild(th5);
+            thead.appendChild(tr1);
+            stableElement.appendChild(thead);
+            // 表内容
+            var tbody = document.createElement("tbody");
+            for (var i = 0;i < data.length;i++)
+            {
+                var tr2 = document.createElement("tr");
+                for (var j = 0;j < 5;j++)
+                {
+                    var td = document.createElement("td");
+                    td.innerHTML = data[i][j];
+                    tr2.appendChild(td);
+                }
+                tbody.appendChild(tr2);
+            }
+            stableElement.appendChild(tbody);
+            seaf_.style.display = "none";
+        }
+        //
+        // 
+        // 给确定按钮添加点击事件
+        seat.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var sea_data={
+                kehuuser_ : sead1.value,
+                jluser_ : jlid,
+            }
+            // 验证输入的账号和密码是否为空
+            if (sead1.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            post("/jlsearch",sea_data);
+        });
+        //
+        //
+        op_but.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var op_data={
+                newkehupass_ : opd2.value,
+                querenpass_ : opd3.value,
+                phonenum_ : opd4.value,
+                kehuname_ : opd5.value
+            }
+            // 验证输入的账号和密码是否为空
+            // console.log(JSON.stringify(op_data))
+            if (opd2.value == "" ||opd3.value == "" ||opd4.value == "" || opd5.value == "") {
+                alert("输入不能为空");
+            }
+            else post("/kaihu",op_data);
+        });
+        //
+        //
+        clt.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var cl_data={
+                kehuuser_ : cld1.value,
+                jluser_ : jlid
+            }
+            console.log(cl_data)
+            // 验证输入的账号和密码是否为空
+            if (cld1.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            post("/xiaohu",cl_data);
+        });
+        //
+        //
+        lelt.addEventListener("click", function(e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+            var lel_data={
+                kehuuser_ : led1.value,
+                jluser_ : jlid,
+                level_ : led2.value
+            }
+            // 验证输入的账号和密码是否为空
+            if (led1.value == "" || led2.value == "") {
+                alert("输入不能为空");
+                return;
+            }
+            post("/shengji",lel_data);
+        });
+        //
+        // 点击事件，显示或隐藏表单
+        function change(){
+            var form1,form2,form3,form4;
+            stableElement.innerHTML = "";
+            if(this.id =="op"){
+                form1 = opf_;
+                form2 = clf_;
+                form3 = lef_;
+                form4 = seaf_;
+            } else if(this.id =="cl"){
+                form1 = clf_;
+                form2 = opf_;
+                form3 = lef_;
+                form4 = seaf_;
+            } else if(this.id =="le"){
+                form1 = lef_;
+                form2 = opf_;
+                form3 = clf_; 
+                form4 = seaf_;
+            } else if(this.id =="sea"){
+                form1 = seaf_;
+                form2 = opf_;
+                form3 = clf_; 
+                form4 = lef_;                
+            }
+            if (form1.style.display == "none") {
+                form1.style.display = "block";
+                form2.style.display = "none";
+                form3.style.display = "none";
+                form4.style.display = "none";
+            } else {
+                form1.style.display = "none";
+            }
+        };
+    </script>
+
+</body>
+</html>

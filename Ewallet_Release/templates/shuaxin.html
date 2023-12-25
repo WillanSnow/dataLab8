@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <style>
@@ -34,6 +35,7 @@
 <body>
     <h1>修改密码</h1>
     <form id="change-form" action="change_password.php" method="post">
+        <label>账号：<input type="text" name="username" id="username"></label>
         <label>手机号码：<input type="text" name="phonenum" id="ponum" maxlength="11"></label>
         <label>验证码：<input type="text" name="code" id="code"></label>
         <label>新密码：<input type="password" name="new_password" id="new_password"></label>
@@ -43,6 +45,7 @@
     <script>
         // 获取表单元素
         var form = document.getElementById("change-form");
+        var username = document.getElementById("username");
         var ponum = document.getElementById("ponum");
         var code = document.getElementById("code");
         var new_password = document.getElementById("new_password");
@@ -52,9 +55,10 @@
         function post() {
             let url = "/xiugaimima";
             let data = {
-                pass_ : new_password,//密码
-                ponum_ : ponum,//手机号
-                code_ : code//验证码
+                username_ : username.value,//账号
+                pass_ : new_password.value,//密码
+                ponum_ : ponum.value,//手机号
+                code_ : code.value//验证码
             };
             // 创建请求选项
             let options = {
@@ -70,12 +74,13 @@
             .then(data => { 
                 if(data == "1")
                 {
-                    alert("修改成功！请返回重新登录");
-                    location.href = "/";
+                    alert("修改成功！请返回重新登录。");
+                    form.reset();
+                    location.href="/";
                 }
                 else
                 {
-                    alert(JSON.stringify(data));
+                    alert(data);                    
                 }
             })
             .catch(error => console.error('Error:', error)); // 捕获并打印任何错误
