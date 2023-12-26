@@ -24,7 +24,6 @@
 #   - cust_id：客户id cust_id(int)
 #   - 修改内容：整数0-4，依次对应：发起交易、接收交易、拒绝交易、撤销交易、数据错误。action(int)
 import random
-import mysql.connector
 from datetime import datetime, timedelta, date
 
 # -----------------数据库函数----------------------
@@ -68,7 +67,7 @@ def get_pending_transactions(cust_id, conn):
     ret = {"flag":False, "info":"", "dota":[]}
     
     # 查询交易
-    cursor.execute("SELECT trade_id, cust_a, cust_b, amount, status FROM trade WHERE cust_a =%s OR cust_b = %s", (cust_id, cust_id, ))
+    cursor.execute("SELECT trade_id, cust_a, cust_b, amount, status ,status FROM trade WHERE cust_a =%s OR cust_b = %s", (cust_id, cust_id, ))
     result = cursor.fetchall()
 
     if result == []:
@@ -77,15 +76,21 @@ def get_pending_transactions(cust_id, conn):
         status_str = ["待确认", "已完成", "未成功"]
         for row in result:
             row = list(row)
+            print(row)
             # 提取名字
             cursor.execute("SELECT name FROM customer WHERE cust_id = %s", (row[1], ))
-            row[1] = cursor.fetchone()[0]
+            if row[4] > 0:
+                row[5] = 0
+            elif cust_id == row[1]:
+                row[5] = 1
+            else:
+                row[5] = 2
 
+            row[1] = cursor.fetchone()[0]
             cursor.execute("SELECT name FROM customer WHERE cust_id = %s", (row[2], ))
             row[2] = cursor.fetchone()[0]
-
             row[4] = status_str[row[4]]
-            print(row)
+
             ret["dota"].append(row)
 
         ret["flag"] = True
@@ -114,7 +119,6 @@ def initiate_transaction(account_a, account_b, amount, conn):
     amount = float(amount)
 
     # 检查目标客户是否存在
-    print(account_a, account_b)
     cursor.execute("SELECT cust_id FROM customer WHERE account_id=%s", (account_b, ))
     cust_b = cursor.fetchone()
     if cust_b is None:
@@ -187,7 +191,7 @@ def modify_transaction(cust_id, trade_id, action, conn):
     cursor = conn.cursor()
 
     # 获取交易信息
-    cursor.execute("SELECT cust_a, cust_b, amount FROM trade WHERE trade_id=%s", (trade_id,))
+    cursor.execute("SELECT cust_a, cust_b, amount, status FROM trade WHERE trade_id=%s", (trade_id,))
     trade = cursor.fetchone()
     if trade is None:
         return "交易不存在"
@@ -195,25 +199,33 @@ def modify_transaction(cust_id, trade_id, action, conn):
         cust_a = trade[0]
         cust_b = trade[1]
         amount = trade[2]
+        now_status = trade[3]
 
     # 检查操作是否合法
-    if action not in [0, 1, 2, 3, 4]:
-        return "操作不合法"
+    if now_status == 1:
+        return "无法对已完成的交易进行操作。如果显示信息不一致，请尝试刷新页面。"
+    elif now_status == 2:
+        return "无法对已撤销的交易进行操作。如果显示信息不一致，请尝试刷新页面。"
 
     # 更新交易状态
-    cursor.execute("UPDATE trade SET status=%s WHERE trade_id=%s", (action, trade_id, ))
-
-    # 如果操作是接收或拒绝交易，更新客户余额
-    # if action in [1, 2]:
+    new_status = 0
     if action == 1:
-        # 接收交易
+        new_status = 1
+    else:
+        new_status = 2
+    cursor.execute("UPDATE trade SET status=%s WHERE trade_id=%s", (new_status, trade_id, ))
+
+    # 更新客户余额
+    if action == 1:
+        # 接收交易，金额流向接收方。
         cursor.execute("SELECT balance FROM customer WHERE cust_id=%s", (cust_b,))
         balance = cursor.fetchone()[0]
         new_balance = balance + amount
         cursor.execute("UPDATE customer SET balance=%s WHERE cust_id=%s", (new_balance, cust_b, ))
-    elif action == 2:
-        # 拒绝交易
+    elif action == 2 or action == 3:
+        # 拒绝/撤销交易，金额返回发起方
         cursor.execute("SELECT balance FROM customer WHERE cust_id=%s", (cust_a,))
+        balance = cursor.fetchone()[0]
         new_balance = balance + amount
         cursor.execute("UPDATE customer SET balance=%s WHERE cust_id=%s", (new_balance, cust_a, ))
 
@@ -227,7 +239,7 @@ def modify_transaction(cust_id, trade_id, action, conn):
 
     conn.commit()
 
-    return "交易修改成功"
+    return "1"
 
 def get_customer_transactions(account, conn):
     """
@@ -265,6 +277,7 @@ def get_customer_transactions(account, conn):
     else:
         status_str = ["待确认", "已完成", "未成功"]
         for row in result:
+            print(row)
             row = list(row)
             # 提取名字
             cursor.execute("SELECT name FROM customer WHERE cust_id = %s", (row[1], ))
@@ -274,7 +287,6 @@ def get_customer_transactions(account, conn):
             row[2] = cursor.fetchone()[0]
 
             row[4] = status_str[row[4]]
-            print(row)
             ret["dota"].append(row)
 
         ret["flag"] = True
@@ -393,13 +405,13 @@ def get_manager_info(account, conn):
 def delete_cust(account, conn):
     "注销账户"
     cursor = conn.cursor()
-    cursor.execute("SELECT* FROM customer WHERE account_id = %s", (account,))
+    cursor.execute("SELECT cust_id FROM customer WHERE account_id = %s", (account,))
     is_cust = cursor.fetchone()
 
-    cursor.execute("SELECT * FROM manager WHERE account_id = %s", (account, ))
+    cursor.execute("SELECT manager_id FROM manager WHERE account_id = %s", (account, ))
     is_manager = cursor.fetchone()
 
-    cursor.execute("SELECT * FROM account WHERE account_id = %s", (account, ))
+    cursor.execute("SELECT account_id FROM account WHERE account_id = %s", (account, ))
     is_account = cursor.fetchone()
     
     if is_manager is not None:
@@ -420,12 +432,12 @@ def update_limit(account, amount, conn):
         return {"flag": False, "info": "额度格式不正确，请重新输入。"}
 
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM customer WHERE account_id = %s", (account, ))
+    cursor.execute("SELECT cust_id FROM customer WHERE account_id = %s", (account, ))
     is_cust = cursor.fetchone()
     if is_cust is None:
         return {"flag": False, "info": "用户不存在。"}
     
-    cursor.execute("SELECT * FROM account WHERE account_id = %s", (account, ))
+    cursor.execute("SELECT account_id FROM account WHERE account_id = %s", (account, ))
     is_account = cursor.fetchone()
 
     if is_account is None:
@@ -452,7 +464,44 @@ def legal_phone(phone):
         return False
     else:
         return True
+
+def create_code(phone, conn):
+    "生成验证码"
+    code = random.randint(1000, 9999)
+    nowtime = datetime.now()
     
+    cursor = conn.cursor()
+    # 执行sql，更新account表中phone对应元组的code、time属性
+    cursor.execute("UPDATE account SET code = %s, code_time = %s WHERE phone_num = %s", (code, nowtime, phone, ))
+
+    conn.commit()
+
+    print(f"\n验证码已生成：{code}，有效时间为10分钟。\n")
+
+def verify_code(phone, code, conn):
+    "确认验证码"
+    if not legal_phone(phone):
+        return "手机号格式不正确，请重新输入"
+    else:
+        cursor = conn.cursor()
+        cursor.execute("SELECT code, code_time FROM account WHERE phone_num = %s", (phone, ))
+        result = cursor.fetchone()
+
+        if result is None:
+            return "该手机号没有绑定账户，请先开户。"
+
+        old_code = result[0]
+        old_time = result[1]
+
+        if old_time is None:
+            return "该手机号没有验证码，请先获取验证码。"
+        elif datetime.now()-old_time > timedelta(minutes=10):
+            return "该手机号验证码已过期，请重新获取。"
+        elif old_code != code:
+            return "验证码错误"
+        else:
+            return "1"
+
 # 更改记录
 # 修改了 grand_id ，使能随机生成 n 位编号，这样的话，数据库使用的自增编号就没什么用了，都用grand_id生成编号：客户、经理、账户的 id 为 5 位；其余为9位。
 # 更改数据库 change、trade 的 id 属性为 9 位整数，因为 15 位超 sql int 范围了。

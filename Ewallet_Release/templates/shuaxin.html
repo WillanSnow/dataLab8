@@ -1,11 +1,13 @@
-<!DOCTYPE html>
+
 <html>
 <head>
     <style>
         h1 {
             text-align: center;
         }
-
+        p {
+           font-size: 20px;
+        }
         form {
             width: 400px;
             margin: 0 auto;
@@ -30,13 +32,28 @@
             margin-left: auto;
             margin-right: auto;
         }
+        #logout{
+            width: 150px;
+            height: 50px;
+            margin-left: 0%;
+            font-size: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px 0px black; 
+        }
+        body{
+            background-color: rgb(53, 133, 73);
+        }
     </style>
 </head>
 <body>
+    <button id="logout" onclick="window.location.href='/'">返回首页</button>
     <h1>修改密码</h1>
+    <form action="enter_phone_nub">
+        <label>手机号码：<input type="text" name="phonenum" id="ponum" maxlength="11"></label>
+        <button type="submit" id="get_code">发送验证码</button>
+    </form>
     <form id="change-form" action="change_password.php" method="post">
         <label>账号：<input type="text" name="username" id="username"></label>
-        <label>手机号码：<input type="text" name="phonenum" id="ponum" maxlength="11"></label>
         <label>验证码：<input type="text" name="code" id="code"></label>
         <label>新密码：<input type="password" name="new_password" id="new_password"></label>
         <label>重复密码：<input type="password" name="repeat_password" id="repeat_password"></label>
@@ -103,7 +120,27 @@
             // 传入新密码
             post();
         });
-
+        document.getElementById("get_code").addEventListener("click", function(e) {
+            e.preventDefault();
+            let url = "/getcode";
+            let data = {
+                ponum_ : ponum.value,//手机号
+            };
+            // 创建请求选项
+            let options = {
+                method: 'POST', // 设置请求方法为POST
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+            // 发送请求
+            fetch(url, options)
+            .then(response => response.json()) // 解析响应为JSON
+            .then(data => { 
+                alert(data)
+            })
+        })
 
     </script>
 </body>

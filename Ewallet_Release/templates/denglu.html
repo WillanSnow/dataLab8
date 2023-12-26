@@ -1,17 +1,14 @@
-<!DOCTYPE html>
+
 <html>
 <head>
     <style>
         h1 {
             text-align: center;
+            font-size: 30px;
         }
-
-        img {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+        p {
+           font-size: 20px;
         }
-
         form {
             display: none;
             width: 300px;
@@ -19,24 +16,69 @@
             border: 1px solid black;
             padding: 20px;
         }
-
         label {
             display: block;
             margin-bottom: 10px;
         }
-
         input {
             width: 200px;
         }
-
+        #logo {
+            display: block;
+            width: 50%;
+            height: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
         button {
             width: 100px;
             margin-top: 10px;
+        }
+        body{
+            background-color: rgb(53, 133, 73);
+            display: flex;
+            justify-content: center;
+        }
+        .c{
+            width: 600px;
+            height: 500px;
+            position: relative;
+            left: 250px;
+            justify-content: center;
+        }
+        .d{
+            width: 500px;
+            height:100px;
+        }
+        .a{
+            width: 1200px;
+            height: 290px;
+            position: relative;
+            top: 450px;
+            right: 350px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+        .b{
+            transition: .7s;
+            overflow: hidden;
+        }
+        .b:hover{
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+        img{
+            width: 350px;           
         }
     </style>
 
 </head>
 <body onload="init()">
+    <div class="d">
+        <p>制作者：陈蓬、陈瑞祺、刘嘉溢</p>
+    </div>
+    <div class="c">
     <h1>电子钱包系统</h1>
     <img src="{{ url_for('static', filename='123.png')}}" id="logo" onclick="change()">
     <form id="login-form" action="login.php" method="post">
@@ -45,6 +87,7 @@
         <button type="submit" id="submit">登录</button>
         <a href="/shuaxin">忘记密码？修改密码</a>
     </form>
+    </div>
     <script>
         // 获取元素       
         var logo = document.getElementById("logo");
@@ -123,5 +166,14 @@
     //输入错误
     //登陆成功
     </script>
+    <div class="a">
+        <div class="b"><img src="{{ url_for('static', filename='1.gif')}}"></div>
+        <div class="b"><img src="{{ url_for('static', filename='2.gif')}}"></div>
+        <div class="b"><img src="{{ url_for('static', filename='3.gif')}}"></div>
+        <div class="b"><img src="{{ url_for('static', filename='4.gif')}}"></div>
+        <div class="b"><img src="{{ url_for('static', filename='5.gif')}}"></div>
+        <div class="b"><img src="{{ url_for('static', filename='6.gif')}}"></div>
+        <div class="b"><img src="{{ url_for('static', filename='7.gif')}}"></div>
+    </div>
 </body>
 </html>

@@ -11,7 +11,7 @@
  Target Server Version : 80030
  File Encoding         : 65001
 
- Date: 21/12/2023 22:15:32
+ Date: 25/12/2023 20:04:35
 */
 
 SET NAMES utf8mb4;
@@ -23,10 +23,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `account`;
 CREATE TABLE `account`  (
   `account_id` int NOT NULL,
-  `password` char(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `password` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `phone_num` char(11) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `code` char(4) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL,
+  `code_time` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`account_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for changes
@@ -43,7 +45,7 @@ CREATE TABLE `changes`  (
   INDEX `CHANGE_TRADE`(`trade_id` ASC) USING BTREE,
   CONSTRAINT `CHANGE_CUST` FOREIGN KEY (`cust_id`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `CHANGE_TRADE` FOREIGN KEY (`trade_id`) REFERENCES `trade` (`trade_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 909697655 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for customer
@@ -56,9 +58,8 @@ CREATE TABLE `customer`  (
   `limit` float NOT NULL,
   `account_id` int NOT NULL,
   PRIMARY KEY (`cust_id`) USING BTREE,
-  INDEX `CUST_ACCOUNT`(`account_id` ASC) USING BTREE,
-  CONSTRAINT `CUST_ACCOUNT` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+  INDEX `CUST_ACCOUNT`(`account_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 86951 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for manager
@@ -71,7 +72,7 @@ CREATE TABLE `manager`  (
   PRIMARY KEY (`manager_id`) USING BTREE,
   INDEX `MANAGER_ACCOUNT`(`account_id` ASC) USING BTREE,
   CONSTRAINT `MANAGER_ACCOUNT` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for trade
@@ -87,58 +88,25 @@ CREATE TABLE `trade`  (
   INDEX `BEGIN_CUST`(`cust_a` ASC) USING BTREE,
   INDEX `DST_CUST`(`cust_b` ASC) USING BTREE,
   CONSTRAINT `BEGIN_CUST` FOREIGN KEY (`cust_a`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `DST_CUST` FOREIGN KEY (`cust_b`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+  CONSTRAINT `END_CUST` FOREIGN KEY (`cust_b`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 994673092 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
-SET FOREIGN_KEY_CHECKS = 1;
-
--- 创建客户用户
-CREATE ROLE 'cust';
--- 分配权限
--- 可查看所有表
-GRANT SELECT ON lab8.* TO 'cust';
--- 对changes、trade可增、改
-GRANT INSERT, UPDATE ON lab8.changes TO 'cust';
-GRANT INSERT, UPDATE ON lab8.trade TO 'cust';
--- 对customer可改
-GRANT UPDATE ON lab8.customer TO 'cust';
--- 创建用户
-CREATE USER 'cust'@'localhost' IDENTIFIED BY '87654321';
--- 分配角色
-GRANT 'cust' TO 'cust'@'localhost';
-
-
--- 创建经理
-CREATE ROLE 'manager';
--- 分配权限
--- 可看所有表
-GRANT SELECT ON lab8.* TO 'manager';
--- 对customer、account可增、删
-GRANT INSERT, DELETE, UPDATE ON lab8.customer TO 'manager';
-GRANT INSERT, DELETE ON lab8.account TO 'manager';
--- 创建用户
-CREATE USER 'manager'@'localhost' IDENTIFIED BY '12345678';
--- 分配角色
-GRANT 'manager' TO 'manager'@'localhost';
-
--- 激活用户
-SET GLOBAL activate_all_roles_on_login=ON;
-
--- 创建触发器
-
-CREATE TRIGGER checkenough
-BEFORE UPDATE ON customer
-FOR EACH ROW
-BEGIN
-	IF(NEW.balance >= 0) THEN
-	BEGIN
-		SELECT 'Available balance is ENOUGH' into @cust;
-	END;
-	ELSE
-	SIGNAL SQLSTATE '45000'  
-        SET MESSAGE_TEXT = 'Available balance is NOT ENOUGH';
-	END IF;
-END
+-- ----------------------------
+-- Triggers structure for table customer
+-- ----------------------------
+-- CREATE TRIGGER checkenough
+-- BEFORE UPDATE ON customer
+-- FOR EACH ROW
+-- BEGIN
+-- 	IF(NEW.balance >= 0) THEN
+-- 	BEGIN
+-- 		SELECT 'Available balance is ENOUGH' into @cust;
+-- 	END;
+-- 	ELSE
+-- 	SIGNAL SQLSTATE '45000'  
+--         SET MESSAGE_TEXT = 'Available balance is NOT ENOUGH';
+-- 	END IF;
+-- END
 
 -- 余额较少时自动确认
 -- CREATE TRIGGER getamount
@@ -180,3 +148,37 @@ END
 --     END IF;
 -- END;
  
+
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- 创建客户用户
+CREATE ROLE 'cust';
+-- 分配权限
+-- 可查看所有表
+GRANT SELECT ON lab8.* TO 'cust';
+-- 对changes、trade可增、改
+GRANT INSERT, UPDATE ON lab8.changes TO 'cust';
+GRANT INSERT, UPDATE ON lab8.trade TO 'cust';
+-- 对customer可改
+GRANT UPDATE ON lab8.customer TO 'cust';
+-- 创建用户
+CREATE USER 'cust'@'localhost' IDENTIFIED BY '87654321';
+-- 分配角色
+GRANT 'cust' TO 'cust'@'localhost';
+
+
+-- 创建经理
+CREATE ROLE 'manager';
+-- 分配权限
+-- 可看所有表
+GRANT SELECT ON lab8.* TO 'manager';
+-- 对customer、account可增、删
+GRANT INSERT, DELETE, UPDATE ON lab8.customer TO 'manager';
+GRANT INSERT, DELETE ON lab8.account TO 'manager';
+-- 创建用户
+CREATE USER 'manager'@'localhost' IDENTIFIED BY '12345678';
+-- 分配角色
+GRANT 'manager' TO 'manager'@'localhost';
+

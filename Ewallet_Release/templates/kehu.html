@@ -3,12 +3,30 @@
 <head>
     <title>Account</title>
     <style>
+        p {
+           font-size: 20px;
+        }
         h1 {
             text-align: center;
         }
+        #st1{
+            width: 150px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px 0px black; 
+        }
+        button{
+            width: 75px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px 0px black; 
+        }
         table {
-            margin: auto;
-            border-collapse: collapse;
+            width: 800px;
+            overflow: auto;
+            margin-bottom: 100px;
         }
         form {
             display: none;
@@ -20,15 +38,61 @@
         input {
             width: 100px;
         }
+        input {
+            width: 100px;
+            height: 25px;
+            transform: rotate(0deg) scale(1);
+        }
+        /* input:hover {
+            transform: rotate(90deg) scale(1.5);
+        } */
+        body {
+            background-color: rgb(53, 133, 73);
+            background-image: url("{{ url_for('static', filename='9.gif')}}");
+            background-repeat:no-repeat;
+            background-attachment:fixed;
+            background-size: 30%;
+            background-position: 50px;
+        }
+        .a{
+            width: 800px;
+            height: 50px;
+            position: relative;
+            left: 600px;
+            top: 100px;
+            justify-content: center;
+        }
+        .b{
+            bottom: 100px;
+            width: 500px;
+            height: 50px;
+            position: relative;
+            left: 600px;
+            top:120px;
+            justify-content: center;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            text-align: center;
+            background: rgb(159, 173, 162);
+        }
     </style>
 
 </head>
 
 <body onload="init()">
+    <p><button onclick="window.location.href='/'">登出</button></p>
+    <div class="a">
     <h1>欢迎，<span id="kehuname"></span>！您的卡号是：<span id="kehuid"></span></h1>
+    </div>
+    <div class="a">
     <p>您的余额是：<span id="balance"></span>元</p>
     <p>您的交易限额为：<span id="limit"></span>元</p>
-
+    </div>
+    <div class="b">
     <p><button id="st1">您的交易记录</button></p>
     
     <button id="dt" onclick="change.bind(this)()">存钱</button>
@@ -51,6 +115,8 @@
         <p>密码：<input id="transfer-password" type="password"></p>
         <p><button id="tt1" >确定</button> 
     </form>
+    <table id="stable" style="font-size: 24px;"></table>
+    </div>
     <script>
         // 获取URL中的账号
         var params = window.location.search;
@@ -62,6 +128,8 @@
         var idElement = document.getElementById("kehuid");
         var balanceElement = document.getElementById("balance");
         var limitElement = document.getElementById("limit");
+        
+        var stableElement = document.getElementById("stable");
 
         // 表单
         var df = document.getElementById("deposit-form");
@@ -97,6 +165,11 @@
         // 使用账号get信息
         function post(url,data) {
             // 创建请求选项
+            var bt_;
+            if(url == "/chexiao"||url == "/jujue"||url == "/jieshou")
+            {
+                bt_ = data.bt_;
+            }
             let options = {
                 method: 'POST', // 设置请求方法为POST
                 headers: {
@@ -111,7 +184,7 @@
                 console.log(JSON.stringify(data))
                 if(url == "/kehuid_post")
                 {
-                    console.log(JSON.stringify(data))
+                    // console.log(JSON.stringify(data))
                     nameElement.innerHTML = data.dota[0];
                     balanceElement.innerHTML = data.dota[2];
                     limitElement.innerHTML = data.dota[3];
@@ -131,19 +204,133 @@
                     alert(data.info);
                     if(data.flag) tf.reset();
                 }
+                else if(url == "/jieshou")
+                {
+                    if (data.flag)
+                    {
+                        var row = bt_.parentNode.parentNode;
+                        var cell1 = row.cells[4];
+                        cell1.innerHTML = "已确认";
+                        row.deleteCell(5);
+                    }
+                    else alert(data.info);
+                }
+                else if(url == "/chexiao")
+                {
+                    if (data.flag)
+                    {
+                        var row = bt_.parentNode.parentNode;
+                        var cell1 = row.cells[4];
+                        cell1.innerHTML = "已撤销";
+                        row.deleteCell(5);
+                    }
+                    else alert(data.info);
+                }
+                else if(url == "/jujue")
+                {
+                    if (data.flag)
+                    {
+                        var row = bt_.parentNode.parentNode;
+                        var cell1 = row.cells[4];
+                        cell1.innerHTML = "已拒绝";
+                        row.deleteCell(5);
+                    }
+                    else alert(data.info);
+                }
                 else if(url == "/kehusearch")
                 {
-                    alert(data.info)
-                    console.log(JSON.stringify(data))
+                    if (data.flag) {
+                        atable(data.dota);
+                    }
+                    else alert(data.info);
                 }
             })
             .catch(error => console.error('Error:', error)); // 捕获并打印任何错误
         }
+        //
+        //
+        function atable(data){
+            // 表头
+            var thead = document.createElement("thead");
+            var tr1 = document.createElement("tr");
+            var th1 = document.createElement("th");
+            var th2 = document.createElement("th");
+            var th3 = document.createElement("th");
+            var th4 = document.createElement("th");
+            var th5 = document.createElement("th");
+            th1.innerHTML = "交易ID";
+            th2.innerHTML = "发起客户";
+            th3.innerHTML = "接收客户";
+            th4.innerHTML = "金额";
+            th5.innerHTML = "交易状态";
+            tr1.appendChild(th1);
+            tr1.appendChild(th2);
+            tr1.appendChild(th3);
+            tr1.appendChild(th4);
+            tr1.appendChild(th5);
+            thead.appendChild(tr1);
+            stableElement.appendChild(thead);
+            // 表内容
+            var tbody = document.createElement("tbody");
+            for (var i = 0;i < data.length;i++)
+            {
+                var tr2 = document.createElement("tr");
+                for (var j = 0;j < 5;j++)
+                {
+                    var td = document.createElement("td");
+                    td.innerHTML = data[i][j];
+                    tr2.appendChild(td);
+                    if(j==4)
+                    {
+                        var btn1 = document.createElement("button");
+                        var btn2 = document.createElement("button");
+                        btn1.id = JSON.stringify(data[i][0])
+                        btn2.id = JSON.stringify(data[i][0])
+                        var td_ = document.createElement("td");
+                        // 撤销
+                        if(data[i][5] == 1)
+                        {
+                            btn1.innerHTML = "撤销";
+                            btn1.addEventListener("click",chexiao);
+                            td_.appendChild(btn1);
+                        }
+                        // 接受 拒绝
+                        else if(data[i][5] == 2)
+                        {
+                            var test = data[i][0]
+                            btn1.innerHTML = "确认收款";
+                            btn1.addEventListener("click",jieshou);
+                            btn2.innerHTML = "拒绝收款";
+                            btn2.addEventListener("click",jujue);
+                            td_.appendChild(btn1);
+                            td_.appendChild(btn2);
+                        }
+                        else
+                        {
+
+                        }
+                        tr2.appendChild(td_);
+                    }
+                }
+                tbody.appendChild(tr2);
+            }
+            stableElement.appendChild(tbody);
+        }
+
 
         // 给确定按钮添加点击事件
         st2.addEventListener("click", function(e) {
             // 阻止表单的默认提交行为
             e.preventDefault();
+            if(stableElement.rows.length != 0)
+            {
+                stableElement.innerHTML = "";
+                return;
+            }
+            df.style.display = "none";
+            wf.style.display = "none";
+            tf.style.display = "none";
+
             var sdata={
                 kehuuser : kehuid
             }
@@ -200,6 +387,7 @@
         // 点击事件，显示或隐藏表单
         function change(){
             var form1,form2,form3;
+            stableElement.innerHTML = "";
             if(this.id =="dt"){
                 form1 = df;
                 form2 = wf;
@@ -221,7 +409,33 @@
                 form1.style.display = "none";
             }
         };
-    </script>
+        //
+        function chexiao(){
+            var chedata={
+                jiaoyiid : this.id,
+                bt_ : this // 这个是按钮对象，不要用
+            }
+            post("/chexiao",chedata);
+        }
+        function jieshou(){
+            var jiedata={
+                jiaoyiid : this.id,
+                bt_ : this // 这个是按钮对象，不要用
+            }
+            console.log(JSON.stringify(jiedata))
+            post("/jieshou",jiedata);
+        }
+        function jujue(){
+            var judata={
+                jiaoyiid : this.id,
+                bt_ : this // 这个是按钮对象，不要用
+            }
+            post("/jujue",judata);
+        }
 
+    </script>
+    <!-- <div class="footer">
+        <h2></h2>
+    </div> -->
 </body>
 </html>

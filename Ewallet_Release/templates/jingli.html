@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <!-- jingli.html -->
 <html>
 <head>
@@ -7,9 +7,27 @@
         h1 {
             text-align: center;
         }
+        p {
+           font-size: 20px;
+        }
+        button{
+            width: 75px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px 0px black; 
+        }
+        #logout{
+            width: 75px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px 0px black; 
+        }
         table {
-            margin: auto;
-            border-collapse: collapse;
+            width: 800px;
+            overflow: auto;
+            margin-bottom: 100px;
         }
         form {
             display: none;
@@ -20,20 +38,59 @@
         }
         input {
             width: 100px;
+            height: 25px;
+            transform: rotate(0deg) scale(1);
+        }
+        /* input:hover {
+            transform: rotate(90deg) scale(1.5);
+        } */
+        body {
+            background-color: rgb(53, 133, 73);
+            background-image: url("{{ url_for('static', filename='8.gif')}}");
+            background-repeat:no-repeat;
+            background-attachment:fixed;
+            background-size: 30%;
+            background-position: 50px;
+        }
+        .a{
+            width: 800px;
+            height: 50px;
+            position: relative;
+            left: 600px;
+            top: 100px;
+            justify-content: center;
+        }
+        .b{
+            width: 500px;
+            height: 50px;
+            position: relative;
+            left: 600px;
+            top:150px;
+            justify-content: center;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            text-align: center;
+            background: rgb(53, 133, 73);
         }
     </style>
 
 </head>
 
 <body onload="init()">
+    <p><button id="logout" onclick="window.location.href='/'">登出</button></p>
+    <div class="a">
     <h1>欢迎<span id="maname">经理先生</span>！您的ID：<span id="jlid"></span></h1>
     <p>本日流水：<span id="liushui"></span>元</p>
-
+    </div>
+    <div class="b">
     <button id="sea" onclick="change.bind(this)()">查询</button>
     <button id="op" onclick="change.bind(this)()">开户</button>
     <button id="cl" onclick="change.bind(this)()">销户</button>
     <button id="le" onclick="change.bind(this)()">升级</button>
-    <table id="stable"></table>
     <form id="seaf">
         <p>查询账户卡号：<input id="sead1" type="text"></p>
         <p><button id="sea-but">提交</button> 
@@ -54,6 +111,8 @@
         <p>修改额度：<input id="led2" type="number"></p>
         <p><button id="le-but">提交</button>
     </form>
+    <table id="stable" style="font-size: 24px;"></table>
+    </div>
     <script>
         // 获取URL参数
         var params = window.location.search;
@@ -141,14 +200,12 @@
                 else if(url == "/jlsearch")
                 {
                     console.log(JSON.stringify(data))
-                    if(data.flag)
-                    {
+                    if(data.flag) {
                         // 展示交易记录表格,还没想好怎么写
                         atable(data.dota);
                         seaf_.reset()
                     }
-                    else
-                    {
+                    else {
                         alert(data.info);
                     }
                 }
@@ -299,6 +356,8 @@
             }
         };
     </script>
-
+    <div class="footer">
+        <h2></h2>
+    </div>
 </body>
 </html>
