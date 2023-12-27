@@ -116,7 +116,11 @@ def initiate_transaction(account_a, account_b, amount, conn):
     cursor = conn.cursor()
     cust_b = None
     cust_a = None
-    amount = float(amount)
+    amount = round(float(amount), 3)
+    if account_a == account_b:
+        return "不能向自己转账"
+    elif amount <= 0:
+        return "金额应大于0"
 
     # 检查目标客户是否存在
     cursor.execute("SELECT cust_id FROM customer WHERE account_id=%s", (account_b, ))
@@ -138,7 +142,7 @@ def initiate_transaction(account_a, account_b, amount, conn):
     if account_a == 0:
         cursor.execute("SELECT `limit`, balance FROM customer WHERE cust_id = %s", (cust_b, ))
     else:
-        cursor.execute("SELECT `limit`, balance FROM customer WHERE cust_id=%s", (cust_a,))
+        cursor.execute("SELECT `limit`, balance FROM customer WHERE cust_id = %s", (cust_a,))
     limit = cursor.fetchone()
 
     if amount > limit[0]:
@@ -309,18 +313,13 @@ def get_transactions(conn, get_date = date.today()):
 
     # 计算给定日期的下一天
     next_day = get_date + timedelta(days=1)
+    print(get_date, next_day)
 
     # 从changes表中查询给定日期的所有交易ID
-    cursor.execute("SELECT trade_id FROM changes WHERE change_time >= %s AND change_time < %s", (get_date, next_day))
-    trade_ids = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SELECT FORMAT(sum(amount), 3) FROM trade WHERE status = 1 AND trade_id in (SELECT trade_id FROM changes WHERE change_time >= %s AND change_time < %s)", (get_date, next_day))
+    liushui = cursor.fetchone()
 
-    # 从trade表中筛选这些交易
-    liusum = 0
-    for trade_id in trade_ids:
-        cursor.execute("SELECT amount FROM trade WHERE trade_id = %s", (trade_id,))
-        liusum += cursor.fetchone()[0]
-
-    return liusum
+    return liushui[0]
 
 def create_account(name, phone_num, password, conn):
     """

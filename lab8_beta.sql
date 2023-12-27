@@ -11,7 +11,7 @@
  Target Server Version : 80030
  File Encoding         : 65001
 
- Date: 25/12/2023 20:04:35
+ Date: 26/12/2023 22:39:12
 */
 
 SET NAMES utf8mb4;
@@ -35,7 +35,7 @@ CREATE TABLE `account`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `changes`;
 CREATE TABLE `changes`  (
-  `change_id` int NOT NULL AUTO_INCREMENT,
+  `change_id` int NOT NULL,
   `change_time` datetime NOT NULL,
   `cust_id` int NOT NULL,
   `trade_id` int NOT NULL,
@@ -45,28 +45,28 @@ CREATE TABLE `changes`  (
   INDEX `CHANGE_TRADE`(`trade_id` ASC) USING BTREE,
   CONSTRAINT `CHANGE_CUST` FOREIGN KEY (`cust_id`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `CHANGE_TRADE` FOREIGN KEY (`trade_id`) REFERENCES `trade` (`trade_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 909697655 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for customer
 -- ----------------------------
 DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer`  (
-  `cust_id` int NOT NULL AUTO_INCREMENT,
+  `cust_id` int NOT NULL,
   `name` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `balance` float NOT NULL,
   `limit` float NOT NULL,
   `account_id` int NOT NULL,
   PRIMARY KEY (`cust_id`) USING BTREE,
   INDEX `CUST_ACCOUNT`(`account_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 86951 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for manager
 -- ----------------------------
 DROP TABLE IF EXISTS `manager`;
 CREATE TABLE `manager`  (
-  `manager_id` int NOT NULL AUTO_INCREMENT,
+  `manager_id` int NOT NULL,
   `name` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `account_id` int NOT NULL,
   PRIMARY KEY (`manager_id`) USING BTREE,
@@ -79,7 +79,7 @@ CREATE TABLE `manager`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `trade`;
 CREATE TABLE `trade`  (
-  `trade_id` int NOT NULL AUTO_INCREMENT,
+  `trade_id` int NOT NULL,
   `amount` float NOT NULL,
   `status` int NOT NULL,
   `cust_a` int NOT NULL,
@@ -89,11 +89,12 @@ CREATE TABLE `trade`  (
   INDEX `DST_CUST`(`cust_b` ASC) USING BTREE,
   CONSTRAINT `BEGIN_CUST` FOREIGN KEY (`cust_a`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `END_CUST` FOREIGN KEY (`cust_b`) REFERENCES `customer` (`cust_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 994673092 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Triggers structure for table customer
 -- ----------------------------
+-- 检查余额
 -- CREATE TRIGGER checkenough
 -- BEFORE UPDATE ON customer
 -- FOR EACH ROW
@@ -147,11 +148,8 @@ CREATE TABLE `trade`  (
 --         END IF;
 --     END IF;
 -- END;
- 
-
 
 SET FOREIGN_KEY_CHECKS = 1;
-
 
 -- 创建客户用户
 CREATE ROLE 'cust';
@@ -182,3 +180,6 @@ CREATE USER 'manager'@'localhost' IDENTIFIED BY '12345678';
 -- 分配角色
 GRANT 'manager' TO 'manager'@'localhost';
 
+-- 创建系统用户
+INSERT INTO account(account_id, password, phone_num) VALUES(0, "111111", 11122223333 );
+INSERT INTO customer(cust_id, name, balance, `limit`, account_id) VALUES(0, "-", 10000000, 1000000, 0);
