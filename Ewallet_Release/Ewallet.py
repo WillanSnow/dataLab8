@@ -109,7 +109,7 @@ def xiugaimima():
     code  = info["code_"]
     ret = ""
     
-    note = functions.verify_code(phone, code, connect)
+    note = functions.verify_code(account, phone, code, connect)
     if note != "1":
         ret = note
     else:

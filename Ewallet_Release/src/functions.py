@@ -67,8 +67,10 @@ def get_pending_transactions(cust_id, conn):
     ret = {"flag":False, "info":"", "dota":[]}
     
     # 查询交易
-    cursor.execute("SELECT trade_id, cust_a, cust_b, amount, status ,status FROM trade WHERE cust_a =%s OR cust_b = %s", (cust_id, cust_id, ))
+    cursor.execute("SELECT trade_id, cust_a, cust_b, amount, `status` ,`status` FROM trade WHERE cust_a =%s OR cust_b = %s", (cust_id, cust_id, ))
     result = cursor.fetchall()
+    # cursor.execute("SELECT trade_id, cust_a, cust_b, amount, `status` FROM trade WHERE cust_a=%s OR cust_b = %s", (cust_id, cust_id, ))
+    # result = cursor.fetchall()
 
     if result == []:
         ret["info"] = "该客户没有交易记录。"
@@ -76,7 +78,7 @@ def get_pending_transactions(cust_id, conn):
         status_str = ["待确认", "已完成", "未成功"]
         for row in result:
             row = list(row)
-            print(row)
+            # print(row)
             # 提取名字
             cursor.execute("SELECT name FROM customer WHERE cust_id = %s", (row[1], ))
             if row[4] > 0:
@@ -153,7 +155,7 @@ def initiate_transaction(account_a, account_b, amount, conn):
     # 创建交易记录
     trade_id = generate_id(9)
     cursor.execute(
-        "INSERT INTO trade (trade_id, amount, status, cust_a, cust_b) VALUES (%s, %s, 0, %s, %s)",
+        "INSERT INTO trade (trade_id, amount, `status`, cust_a, cust_b) VALUES (%s, %s, 0, %s, %s)",
         (trade_id, amount, cust_a, cust_b)
     )
 
@@ -195,7 +197,7 @@ def modify_transaction(cust_id, trade_id, action, conn):
     cursor = conn.cursor()
 
     # 获取交易信息
-    cursor.execute("SELECT cust_a, cust_b, amount, status FROM trade WHERE trade_id=%s", (trade_id,))
+    cursor.execute("SELECT cust_a, cust_b, amount, `status` FROM trade WHERE trade_id=%s", (trade_id,))
     trade = cursor.fetchone()
     if trade is None:
         return "交易不存在"
@@ -217,7 +219,7 @@ def modify_transaction(cust_id, trade_id, action, conn):
         new_status = 1
     else:
         new_status = 2
-    cursor.execute("UPDATE trade SET status=%s WHERE trade_id=%s", (new_status, trade_id, ))
+    cursor.execute("UPDATE trade SET `status`=%s WHERE trade_id=%s", (new_status, trade_id, ))
 
     # 更新客户余额
     if action == 1:
@@ -254,7 +256,7 @@ def get_customer_transactions(account, conn):
     - conn:数据库连接
 
     返回：
-    - 交易：(trade_id, amount, status, cust_a, cust_b)
+    - 交易：(trade_id, amount, `status`, cust_a, cust_b)
     """
     ret = {"flag": False, "info": "", "dota": []}
     if len(account) > 5 or not account.isdigit():
@@ -273,7 +275,7 @@ def get_customer_transactions(account, conn):
         cust_id = cust_id[0]
 
     # 查询交易
-    cursor.execute("SELECT trade_id, cust_a, cust_b, amount, status FROM trade WHERE cust_a=%s OR cust_b = %s", (cust_id, cust_id, ))
+    cursor.execute("SELECT trade_id, cust_a, cust_b, amount, `status` FROM trade WHERE cust_a=%s OR cust_b = %s", (cust_id, cust_id, ))
     result = cursor.fetchall()
 
     if result == []:
@@ -281,7 +283,7 @@ def get_customer_transactions(account, conn):
     else:
         status_str = ["待确认", "已完成", "未成功"]
         for row in result:
-            print(row)
+            # print(row)
             row = list(row)
             # 提取名字
             cursor.execute("SELECT name FROM customer WHERE cust_id = %s", (row[1], ))
@@ -295,7 +297,7 @@ def get_customer_transactions(account, conn):
 
         ret["flag"] = True
         ret["info"] = "查询客户的交易记录如下。"
-
+    # print(ret)
     return ret
 
 def get_transactions(conn, get_date = date.today()):
@@ -307,16 +309,16 @@ def get_transactions(conn, get_date = date.today()):
     - conn:数据库连接
 
     返回：
-    - 交易:(trade_id, amount, status, cust_a, cust_b)
+    - 交易:(trade_id, amount, `status`, cust_a, cust_b)
     """
     cursor = conn.cursor()
 
     # 计算给定日期的下一天
     next_day = get_date + timedelta(days=1)
-    print(get_date, next_day)
+    # print(get_date, next_day)
 
     # 从changes表中查询给定日期的所有交易ID
-    cursor.execute("SELECT FORMAT(sum(amount), 3) FROM trade WHERE status = 1 AND trade_id in (SELECT trade_id FROM changes WHERE change_time >= %s AND change_time < %s)", (get_date, next_day))
+    cursor.execute("SELECT FORMAT(sum(amount), 3) FROM trade WHERE `status` = 1 AND trade_id in (SELECT trade_id FROM changes WHERE change_time >= %s AND change_time < %s)", (get_date, next_day))
     liushui = cursor.fetchone()
 
     return liushui[0]
@@ -477,13 +479,13 @@ def create_code(phone, conn):
 
     print(f"\n验证码已生成：{code}，有效时间为10分钟。\n")
 
-def verify_code(phone, code, conn):
+def verify_code(account, phone, code, conn):
     "确认验证码"
     if not legal_phone(phone):
         return "手机号格式不正确，请重新输入"
     else:
         cursor = conn.cursor()
-        cursor.execute("SELECT code, code_time FROM account WHERE phone_num = %s", (phone, ))
+        cursor.execute("SELECT code, code_time FROM account WHERE account_id = %s AND phone_num = %s", (account, phone, ))
         result = cursor.fetchone()
 
         if result is None:
